@@ -2,8 +2,12 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { createClient } from '@supabase/supabase-js';
 import type { Task, TaskPriority } from '@shared/api.interface';
 
-const SUPABASE_URL = 'https://wqpujpzlbgsfmlwxzcmj.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_lvaPtAFFfI_o24D3NIUp1Q_2TvipRwF';
+const SUPABASE_URL =
+  process.env.SUPABASE_URL ||
+  'https://wqpujpzlbgsfmlwxzcmj.supabase.co';
+const SUPABASE_KEY =
+  process.env.SUPABASE_ANON_KEY ||
+  'sb_publishable_lvaPtAFFfI_o24D3NIUp1Q_2TvipRwF';
 
 interface SupabaseTask {
   id: string | number;

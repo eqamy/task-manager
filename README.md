@@ -1,6 +1,6 @@
 # 智能任务管理系统
 
-一个基于 Node.js + Supabase 的智能任务管理应用，中文界面，支持任务的添加、优先级管理、完成状态切换与筛选。
+一个基于 Node.js + Supabase 的智能任务管理应用，中文界面，支持任务的添加、优先级管理、完成状态切换与筛选。可部署到 Vercel（全栈 Serverless 模式）。
 
 ## 功能特性
 
@@ -18,6 +18,7 @@
 | 前端 | React + Vite + Tailwind CSS |
 | 后端 | NestJS（Node.js） |
 | 数据库 | Supabase（PostgreSQL），通过 `@supabase/supabase-js` 访问 |
+| 部署 | Vercel（Serverless 函数托管前后端） |
 
 ## 快速开始
 
@@ -46,27 +47,39 @@ create policy "允许匿名删除任务" on public.tasks for delete using (true)
 
 ### 2. 配置连接信息
 
-修改 `server/modules/task/task.service.ts` 中的：
+`server/modules/task/task.service.ts` 从环境变量读取 Supabase 配置（未配置时回退到代码内的默认值）：
 
-```ts
-const SUPABASE_URL = 'https://<your-project>.supabase.co';
-const SUPABASE_KEY = '<your anon/publishable key>';
-```
+| 环境变量 | 说明 |
+| --- | --- |
+| `SUPABASE_URL` | Supabase 项目 URL，如 `https://<your-project>.supabase.co` |
+| `SUPABASE_ANON_KEY` | anon / publishable key（`sb_publishable_...`） |
 
-建议改为读取环境变量（如 `process.env.SUPABASE_URL` / `process.env.SUPABASE_KEY`）。
-
-### 3. 安装依赖并启动
+### 3. 本地运行
 
 ```bash
 npm install
 npm run dev
 ```
 
+## 部署到 Vercel（全栈 Serverless）
+
+本项目采用"整个 NestJS 应用作为一个 Serverless 函数"的部署方式：`api/index.ts` 以懒加载单例启动 NestJS，同时处理 `/api/*` 接口和前端页面/静态资源（前端请求均为同源相对路径，无需改动前端）。
+
+1. 把仓库推到 GitHub（如 `eqamy/task-manager`）
+2. 在 Vercel 导入该仓库，**Framework Preset 选择 Other**（构建命令由根目录 `vercel.json` 指定为 `npm run build:prod`）
+3. 在 Project Settings → Environment Variables 添加：
+   - `SUPABASE_URL` = `https://wqpujpzlbgsfmlwxzcmj.supabase.co`
+   - `SUPABASE_ANON_KEY` = `sb_publishable_你的key`
+4. 点击 Deploy 部署
+
+> 说明：`vercel.json` 中通过 `rewrites` 将全部请求指向 `/api/index`；构建时 `npm run build:prod` 会先后构建 NestJS 服务端（输出到 `dist/server`）和 Vite 前端（输出到 `dist/client`），Serverless 入口从 `dist/server` 动态加载应用并托管 `dist/client` 静态资源。
+
 ## 项目结构
 
 ```
-├── client/    # 前端 React 代码
-├── server/    # 后端 NestJS 代码（含 @supabase/supabase-js 数据访问）
-├── shared/    # 前后端共享类型
+├── api/        # Vercel Serverless 入口（引导 NestJS 应用）
+├── client/     # 前端 React 代码
+├── server/     # 后端 NestJS 代码（含 @supabase/supabase-js 数据访问）
+├── shared/     # 前后端共享类型
 └── package.json
 ```
