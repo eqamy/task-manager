@@ -1,9 +1,10 @@
 {
   "buildCommand": "npm run build:prod",
   "installCommand": "npm install",
+  "outputDirectory": "dist/client",
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/api/(.*)",
       "destination": "/api/index"
     }
   ]

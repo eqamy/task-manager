@@ -2,7 +2,6 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
 import { join } from 'path';
-import { __express as hbsExpressEngine } from 'hbs';
 import 'reflect-metadata';
 
 import type { NestExpressApplication } from '@nestjs/platform-express';
@@ -22,18 +21,8 @@ async function getInstance(): Promise<Express> {
     logger: ['error', 'warn', 'log'],
   });
 
-  // 最小化自建配置，不依赖 @lark-apaas 平台框架
   app.setGlobalPrefix('');
   app.set('trust proxy', true);
-
-  const clientDir = join(process.cwd(), 'dist/client');
-  app.useStaticAssets(clientDir, {
-    index: false,
-    redirect: false,
-  });
-  app.setBaseViewsDir(clientDir);
-  app.setViewEngine('html');
-  app.engine('html', hbsExpressEngine);
 
   await app.init();
   cachedInstance = app.getHttpAdapter().getInstance();
