@@ -1,3 +1,5 @@
+trigger vercel deploy
+
 # 智能任务管理系统
 
 一个基于 Node.js + Supabase 的智能任务管理应用，中文界面，支持任务的添加、优先级管理、完成状态切换与筛选。可部署到 Vercel（全栈 Serverless 模式）。
