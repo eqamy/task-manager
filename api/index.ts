@@ -1,7 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
-import { configureApp } from '@lark-apaas/fullstack-nestjs-core';
 import { join } from 'path';
 import { __express as hbsExpressEngine } from 'hbs';
 import 'reflect-metadata';
@@ -20,12 +19,12 @@ async function getInstance(): Promise<Express> {
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     abortOnError: false,
-    logger: ['error', 'warn'],
+    logger: ['error', 'warn', 'log'],
   });
 
-  await configureApp(app, {
-    disableSwagger: true,
-  });
+  // 最小化自建配置，不依赖 @lark-apaas 平台框架
+  app.setGlobalPrefix('');
+  app.set('trust proxy', true);
 
   const clientDir = join(process.cwd(), 'dist/client');
   app.useStaticAssets(clientDir, {
